@@ -5,6 +5,7 @@ import TextInput from "$lib/TextInput/index.js";
 let value = $state("");
 
 let placeholderText = $state("Placeholder text");
+
 </script>
 
 <ComponentPage
