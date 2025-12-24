@@ -151,15 +151,9 @@ const inputFn = $derived(input ?? inputDefault);
 }: InputProps)}
     <text-entry
         bind:this={() => el, onElChange}
-        contenteditable
-        role="textbox"
-        tabindex="0"
-        {onfocus}
-        {onblur}
-        {onkeydown}
-        {onclick}
         bind:textContent={() => localText, onLocalTextChange}
-        {disabled}
+        {...elProps}
+        contenteditable
     ></text-entry>
 {/snippet}
 
