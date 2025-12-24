@@ -1,6 +1,6 @@
 <script lang="ts">
 import TextInput from "$lib/TextInput/index.js";
-    import ComponentPage from "../ComponentPage.svelte";
+    import ComponentPage from "../../ComponentPage.svelte";
 
 let value = $state("");
 
