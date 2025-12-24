@@ -1,21 +1,56 @@
 <script lang="ts">
 import TextInput from "$lib/TextInput/index.js";
     import ComponentPage from "../../ComponentPage.svelte";
+    import ComponentProps from "../../ComponentProps.svelte";
 
 let value = $state("");
 
 let placeholderText = $state("Placeholder text");
+let multiline = $state(false);
 
 </script>
 
 <ComponentPage
     title="TextInput"
 >
+
+    <ComponentProps>
+        <div>
+            <label>
+                Value
+                <input
+                    type="text"
+                    bind:value
+                />
+            </label>
+        </div>
+
+        <div>
+            <label>
+                Placeholder text
+                <input
+                    type="text"
+                    bind:value={placeholderText}
+                />
+            </label>
+        </div>
+
+        <div>
+            <label>
+                Multiline
+                <input
+                    type="checkbox"
+                    bind:checked={multiline}
+                />
+            </label>
+        </div>
+    </ComponentProps>
+
     <TextInput
         {value}
         onValueChange={newValue => value = newValue}
         {placeholderText}
-        multiline
+        {multiline}
     >
         {#snippet container({contents, valid})}
             <div
@@ -37,7 +72,9 @@ let placeholderText = $state("Placeholder text");
                 class="text-input-input"
                 {...elProps}
                 contenteditable
-            ></div>
+            >
+                <br />
+            </div>
         {/snippet}
     </TextInput>
 </ComponentPage>
@@ -45,6 +82,8 @@ let placeholderText = $state("Placeholder text");
 
 <style lang="scss">
 .text-input-container {
+    width: 80ch;
+
     display: grid;
     place-items: stretch;
 

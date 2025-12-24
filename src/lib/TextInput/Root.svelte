@@ -154,7 +154,9 @@ const inputFn = $derived(input ?? inputDefault);
         bind:textContent={() => localText, onLocalTextChange}
         {...elProps}
         contenteditable
-    ></text-entry>
+    >
+        <br /> <!-- needed for initial centering -->
+    </text-entry>
 {/snippet}
 
 {#snippet placeholderLoaded()}
