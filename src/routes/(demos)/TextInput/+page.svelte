@@ -4,9 +4,9 @@ import TextInput from "$lib/TextInput/index.js";
     import ComponentProps from "../../ComponentProps.svelte";
 
 let value = $state("");
-
 let placeholderText = $state("Placeholder text");
 let multiline = $state(false);
+let disabled = $state(false);
 
 </script>
 
@@ -17,7 +17,7 @@ let multiline = $state(false);
     <ComponentProps>
         <div>
             <label>
-                Value
+                <code>value</code>
                 <input
                     type="text"
                     bind:value
@@ -27,7 +27,7 @@ let multiline = $state(false);
 
         <div>
             <label>
-                Placeholder text
+                <code>placeholderText</code>
                 <input
                     type="text"
                     bind:value={placeholderText}
@@ -37,10 +37,20 @@ let multiline = $state(false);
 
         <div>
             <label>
-                Multiline
+                <code>multiline</code>
                 <input
                     type="checkbox"
                     bind:checked={multiline}
+                />
+            </label>
+        </div>
+
+        <div>
+            <label>
+                <code>disabled</code>
+                <input
+                    type="checkbox"
+                    bind:checked={disabled}
                 />
             </label>
         </div>
@@ -51,11 +61,13 @@ let multiline = $state(false);
         onValueChange={newValue => value = newValue}
         {placeholderText}
         {multiline}
+        {disabled}
     >
         {#snippet container({contents, valid})}
             <div
                 class="text-input-container"
                 class:invalid={!valid}
+                class:disabled
             >
                 {@render contents()}
             </div>
@@ -87,12 +99,18 @@ let multiline = $state(false);
     display: grid;
     place-items: stretch;
 
-    box-shadow: 0 0.0625rem 0.125rem oklch(0 0 0 / 0.1);
-    border: 0.0625rem solid oklch(0 0 0 / 0.25);
-
     &,
     > * {
         border-radius: 0.5rem;
+    }
+
+    &:not(.disabled) {
+        box-shadow: 0 0.0625rem 0.125rem oklch(0 0 0 / 0.1);
+        border: 0.0625rem solid oklch(0 0 0 / 0.25);
+    }
+
+    &.disabled {
+        pointer-events: none;
     }
 
     > * {

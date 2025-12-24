@@ -81,12 +81,15 @@ $effect(() => {
 
 let focused = $state(false);
 const handleFocus = () => {
+    if (disabled) return;
+
     focused = true;
 };
 
 const handleBlur = () => {
     focused = false;
 
+    if (disabled) return;
     if (localValue === value) return;
 
     if (!valid) {
@@ -98,7 +101,14 @@ const handleBlur = () => {
 };
 
 let el: HTMLElement;
+
+const handleKeydownGeneric = (event: KeyboardEvent) => {
+    if (disabled) event.preventDefault();
+};
+
 const handleKeydownSingleLine = (event: KeyboardEvent) => {
+    handleKeydownGeneric(event);
+
     if (event.key === "Enter") {
         event.preventDefault();
         el.blur();
@@ -185,7 +195,7 @@ const inputFn = $derived(input ?? inputDefault);
         elProps: {
             onfocus: handleFocus,
             onblur: handleBlur,
-            onkeydown: multiline ? () => {} : handleKeydownSingleLine,
+            onkeydown: multiline ? handleKeydownGeneric : handleKeydownSingleLine,
             onclick: (event: Event) => {
                 if (!focused) return;
                 event.preventDefault();
@@ -232,6 +242,10 @@ text-entry-container {
     &.invalid {
         outline: 1px solid oklch(62.828% 0.20996 13.579);
         outline-offset: 0.25rem;
+    }
+
+    &.disabled {
+        pointer-events: none;
     }
 }
 
