@@ -1,7 +1,10 @@
 <script lang="ts">
 import TextInput from "$lib/TextInput/index.js";
-    import ComponentPage from "../../ComponentPage.svelte";
-    import ComponentProps from "../../ComponentProps.svelte";
+import ComponentPage from "../../ComponentPage.svelte";
+import ComponentProp from "../../ComponentProp.svelte";
+import ComponentProps from "../../ComponentProps.svelte";
+    import KeyboardKey from "../../KeyboardKey.svelte";
+    import TextInputDefaultStyle from "../../TextInputDefaultStyle.svelte";
 
 let value = $state("");
 let placeholderText = $state("Placeholder text");
@@ -13,126 +16,88 @@ let disabled = $state(false);
 <ComponentPage
     title="TextInput"
 >
+    {#snippet overview()}
+        Text entry that only submits changes to the text on blur/enter, not as the user is typing
+    {/snippet}
 
-    <ComponentProps>
-        <div>
-            <label>
-                <code>value</code>
-                <input
-                    type="text"
-                    bind:value
-                />
-            </label>
-        </div>
+    {#snippet propsSummary()}
+        <ComponentProps>
+            <ComponentProp
+                name="value"
+                type="string"
+            >
+            
+                {#snippet editor({id})}
+                    <TextInputDefaultStyle
+                        bind:value
+                        placeholderText="value"
+                        {id}
+                    />
+                {/snippet}
 
-        <div>
-            <label>
-                <code>placeholderText</code>
-                <input
-                    type="text"
-                    bind:value={placeholderText}
-                />
-            </label>
-        </div>
+                {#snippet desc()}
+                    Last submitted value
+                {/snippet}
+            </ComponentProp>
 
-        <div>
-            <label>
-                <code>multiline</code>
-                <input
-                    type="checkbox"
-                    bind:checked={multiline}
-                />
-            </label>
-        </div>
+            <ComponentProp
+                name="placeholderText"
+                type="string"
+            >
+                {#snippet editor({id})}
+                    <TextInputDefaultStyle
+                        bind:value={placeholderText}
+                        placeholderText="placeholderText"
+                    />
+                {/snippet}
 
-        <div>
-            <label>
-                <code>disabled</code>
-                <input
-                    type="checkbox"
-                    bind:checked={disabled}
-                />
-            </label>
-        </div>
-    </ComponentProps>
+                {#snippet desc()}
+                    Text to display when <code>value</code> is empty
+                {/snippet}
+            </ComponentProp>
 
-    <TextInput
-        {value}
-        onValueChange={newValue => value = newValue}
+            <ComponentProp
+                name="multiline"
+                type="boolean"
+            >
+                {#snippet editor()}
+                    <input
+                        type="checkbox"
+                        bind:checked={multiline}
+                    />
+                {/snippet}
+
+                {#snippet desc()}
+                    Whether <KeyboardKey label="Enter" /> should create newlines within the text input (else it will submit the value)
+                {/snippet}
+            </ComponentProp>
+
+            <ComponentProp
+                name="disabled"
+                type="boolean"
+            >
+                {#snippet editor()}
+                    <input
+                        type="checkbox"
+                        bind:checked={disabled}
+                    />
+                {/snippet}
+
+                {#snippet desc()}
+                    Whether to reject further input from the user
+                {/snippet}
+            </ComponentProp>
+        </ComponentProps>
+    {/snippet}
+
+    <TextInputDefaultStyle
+        bind:value
         {placeholderText}
         {multiline}
         {disabled}
-    >
-        {#snippet container({contents, valid})}
-            <div
-                class="text-input-container"
-                class:invalid={!valid}
-                class:disabled
-            >
-                {@render contents()}
-            </div>
-        {/snippet}
-
-        {#snippet placeholder({placeholderText})}
-            <div class="text-input-placeholder">{placeholderText}</div>
-        {/snippet}
-
-        {#snippet input({localText, onLocalTextChange, el, onElChange, elProps})}
-            <div
-                bind:this={() => el, onElChange}
-                bind:textContent={() => localText, onLocalTextChange}
-                class="text-input-input"
-                {...elProps}
-                contenteditable
-            >
-                <br />
-            </div>
-        {/snippet}
-    </TextInput>
+    />
 </ComponentPage>
 
 
 <style lang="scss">
-.text-input-container {
-    width: 80ch;
-
-    display: grid;
-    place-items: stretch;
-
-    &,
-    > * {
-        border-radius: 0.5rem;
-    }
-
-    &:not(.disabled) {
-        box-shadow: 0 0.0625rem 0.125rem oklch(0 0 0 / 0.1);
-        border: 0.0625rem solid oklch(0 0 0 / 0.25);
-    }
-
-    &.disabled {
-        pointer-events: none;
-    }
-
-    > * {
-        grid-area: 1/1;
-    }
-
-    &.invalid {
-        border-color: oklch(0.7 0.15 0.98turn);
-    }
-}
-
-.text-input-placeholder {
-    opacity: 0.3333333;
-    pointer-events: none;
-    user-select: none;
-}
-
-.text-input-input,
-.text-input-placeholder {
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-
-    text-align: center;
-}
 </style>

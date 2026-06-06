@@ -1,19 +1,63 @@
 * {
     box-sizing: border-box;
+}
 
-    padding: 0;
+body {
+    font-family: "Averia Libre", "Atkinson Hyperlegible Next", sans-serif;
     margin: 0;
-    
-    font-size: inherit;
-    font-weight: inherit;
-    line-height: 1;
 
-    background: none;
-    border: none;
+    background: oklch(0.995 0.01 150);
+    color: oklch(0.3 0.1 180);
+}
+
+code,
+pre,
+kbd {
+    font-family: "Atkinson Hyperlegible Mono", monospace;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-bottom: 0;
+
+    font-family: "Belanosima", "Averia Libre", "Atkinson Hyperlegible Next", sans-serif;
+    font-weight: 600;
+    color: oklch(0.5 0.05 160);
 }
 
 
 h1 {
     font-size: 2rem;
-    font-weight: 700;
+}
+
+code,
+pre {
+    padding: 0.0625em 0.5em;
+
+    background: oklch(0.95 0.05 130 / 0.5);
+    border: 1px solid oklch(0.8 0.03 130 / 0.5);
+    border-radius: 0.75em;
+}
+
+
+input,
+select,
+button {
+    padding: 0;
+    margin: 0;
+
+    
+    font-family: inherit;
+    font-size: 1em;
+    font-weight: inherit;
+    line-height: 1;
+
+    background: none;
+    border: none;
+
+    color: currentcolor;
 }
