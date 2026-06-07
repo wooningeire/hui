@@ -8,6 +8,11 @@ export type EntryProps = {
     value: number,
     progress: number,
     valid: boolean,
+    invalid: boolean,
+    outsideHardBounds: boolean,
+    outsideSoftBounds: boolean,
+    belowSoftMax: boolean,
+    belowSoftMin: boolean,
     focused: boolean,
     disabled: boolean,
     editing: boolean,
@@ -51,6 +56,7 @@ type Props = {
     convertOut?: (value: number) => number,
     format?: (value: number) => string,
     parse?: (value: string) => number | null,
+    exponential?: boolean,
     hasBounds?: boolean,
     min?: number,
     max?: number,
@@ -106,6 +112,16 @@ const getProgress = (value: number, min: number, max: number) => {
     return (value - min) / span;
 };
 
+const getOptionalProgress = (
+    value: number | null,
+    min: number | null,
+    max: number | null,
+) => {
+    if (value === null || min === null || max === null) return 0;
+
+    return getProgress(value, min, max);
+};
+
 const getModifierFactor = (event: PointerEvent) => {
     if (event.shiftKey) return 1 / 8;
     if (event.ctrlKey || event.metaKey) return 8;
@@ -133,6 +149,7 @@ let {
     convertOut = identity,
     format = defaultFormat,
     parse = defaultParse,
+    exponential = false,
     hasBounds = true,
     min = -Infinity,
     max = Infinity,
@@ -148,9 +165,27 @@ let {
 
 const getDisplayText = () => format(convertOut(value));
 
+const toSliderValue = (value: number) => {
+    if (!Number.isFinite(value)) return null;
+    if (!exponential) return value;
+    if (value <= 0) return null;
+
+    const nextValue = Math.log(value);
+    if (!Number.isFinite(nextValue)) return null;
+
+    return nextValue;
+};
+
+const fromSliderValue = (value: number) => {
+    const nextValue = exponential ? Math.exp(value) : value;
+    if (!Number.isFinite(nextValue)) return null;
+
+    return nextValue;
+};
+
 let localText = $state("");
 let mode = $state("idle" as EntrySliderMode);
-let valid = $state(true);
+let proposedValueAccepted = $state(true);
 let focused = $state(false);
 let el = $state(null as HTMLElement | null);
 let dragState = $state.raw(null as DragState | null);
@@ -160,17 +195,18 @@ const editing = $derived(mode === "editing");
 const pendingDrag = $derived(mode === "pending-drag");
 const dragging = $derived(mode === "dragging");
 const trackingPointer = $derived(pendingDrag || dragging);
-const internalSoftMin = $derived(convertIn(softMin));
-const internalSoftMax = $derived(convertIn(softMax));
-const progress = $derived(getProgress(value, internalSoftMin, internalSoftMax));
-const overflow = $derived(hasBounds && progress > 1);
-const underflow = $derived(hasBounds && progress < 0);
+const sliderValue = $derived(toSliderValue(value));
+const sliderSoftMin = $derived(toSliderValue(softMin));
+const sliderSoftMax = $derived(toSliderValue(softMax));
+const progress = $derived(getOptionalProgress(sliderValue, sliderSoftMin, sliderSoftMax));
 const displayText = $derived(editing ? localText : getDisplayText());
 
 const getAmountPerPixel = () => {
     if (!hasBounds) return unboundedChangePerPixel;
 
-    const span = internalSoftMax - internalSoftMin;
+    if (sliderSoftMin === null || sliderSoftMax === null) return unboundedChangePerPixel;
+
+    const span = sliderSoftMax - sliderSoftMin;
     const width = el?.getBoundingClientRect().width ?? 0;
 
     if (!Number.isFinite(span) || span === 0 || width <= 0) {
@@ -180,12 +216,15 @@ const getAmountPerPixel = () => {
     return span / width;
 };
 
-const isHardBounded = (value: number) => {
-    return value >= min && value <= max;
+const isOutsideHardBounds = (value: number) => {
+    return value < min || value > max;
 };
 
-const isValid = (value: number) => {
-    return Number.isFinite(value) && isHardBounded(value) && validate(value);
+const isAcceptableValue = (value: number) => {
+    return Number.isFinite(value)
+        && toSliderValue(value) !== null
+        && !isOutsideHardBounds(value)
+        && validate(value);
 };
 
 $effect(() => {
@@ -194,7 +233,7 @@ $effect(() => {
     localText = getDisplayText();
 
     if (mode === "idle") {
-        valid = isValid(value);
+        proposedValueAccepted = isAcceptableValue(value);
     }
 });
 
@@ -208,9 +247,47 @@ const parseTextValue = (text: string) => {
     return converted;
 };
 
+const activeEntryValue = $derived.by(() => {
+    if (!editing) return value;
+
+    return parseTextValue(localText);
+});
+
+const activeEntrySliderValue = $derived(activeEntryValue === null
+    ? null
+    : toSliderValue(activeEntryValue));
+const activeEntryProgress = $derived(getOptionalProgress(
+    activeEntrySliderValue,
+    sliderSoftMin,
+    sliderSoftMax,
+));
+
+const isTextValueAcceptable = (text: string) => {
+    const nextValue = parseTextValue(text);
+    if (nextValue === null) return false;
+
+    return isAcceptableValue(nextValue);
+};
+
+const outsideHardBounds = $derived.by(() => {
+    if (activeEntryValue === null) return false;
+
+    return isOutsideHardBounds(activeEntryValue);
+});
+const belowSoftMax = $derived(hasBounds && activeEntryProgress > 1);
+const belowSoftMin = $derived(hasBounds && activeEntryProgress < 0);
+const outsideSoftBounds = $derived(belowSoftMax || belowSoftMin);
+
+const invalid = $derived.by(() => {
+    if (editing) return !isTextValueAcceptable(localText);
+    if (mode === "idle") return !isAcceptableValue(value);
+
+    return !proposedValueAccepted;
+});
+
 const emitIfValid = (nextValue: number) => {
-    valid = isValid(nextValue);
-    if (!valid) return;
+    proposedValueAccepted = isAcceptableValue(nextValue);
+    if (!proposedValueAccepted) return;
 
     onValueChange(nextValue);
 };
@@ -222,9 +299,9 @@ const handleTextChange = (text: string) => {
     localText = text;
 
     const nextValue = parseTextValue(text);
-    valid = nextValue !== null && isValid(nextValue);
+    proposedValueAccepted = nextValue !== null && isAcceptableValue(nextValue);
 
-    if (nextValue !== null && valid) {
+    if (nextValue !== null && proposedValueAccepted) {
         onValueChange(nextValue);
     }
 };
@@ -232,7 +309,7 @@ const handleTextChange = (text: string) => {
 const stopTextEntry = () => {
     mode = "idle";
     localText = getDisplayText();
-    valid = true;
+    proposedValueAccepted = true;
 };
 
 const selectElementText = () => {
@@ -259,7 +336,7 @@ const startTextEntry = () => {
 
     mode = "editing";
     localText = getDisplayText();
-    valid = true;
+    proposedValueAccepted = true;
 
     void tick().then(selectElementText);
 };
@@ -293,17 +370,24 @@ const snapToSoftBounds = (nextValue: number, amountPerPixel: number, modifierFac
     }
 
     const tolerance = Math.abs(amountPerPixel * modifierFactor * stickToBoundTolerance);
-
-    if (Math.abs(nextValue - internalSoftMin) <= tolerance) {
+    const sliderValue = toSliderValue(nextValue);
+    if (sliderValue === null) {
         return {
-            value: clamp(internalSoftMin, min, max),
+            value: nextValue,
+            snapped: false,
+        };
+    }
+
+    if (sliderSoftMin !== null && Math.abs(sliderValue - sliderSoftMin) <= tolerance) {
+        return {
+            value: clamp(softMin, min, max),
             snapped: true,
         };
     }
 
-    if (Math.abs(nextValue - internalSoftMax) <= tolerance) {
+    if (sliderSoftMax !== null && Math.abs(sliderValue - sliderSoftMax) <= tolerance) {
         return {
-            value: clamp(internalSoftMax, min, max),
+            value: clamp(softMax, min, max),
             snapped: true,
         };
     }
@@ -317,7 +401,13 @@ const snapToSoftBounds = (nextValue: number, amountPerPixel: number, modifierFac
 const emitDragValue = (event: PointerEvent, totalX: number, startValue: number) => {
     const amountPerPixel = getAmountPerPixel();
     const modifierFactor = getModifierFactor(event);
-    const rawValue = startValue + totalX * amountPerPixel * modifierFactor;
+    const startSliderValue = toSliderValue(startValue);
+    if (startSliderValue === null) return;
+
+    const rawSliderValue = startSliderValue + totalX * amountPerPixel * modifierFactor;
+    const rawValue = fromSliderValue(rawSliderValue);
+    if (rawValue === null) return;
+
     const boundedValue = clamp(rawValue, min, max);
     const snappedValue = snapToSoftBounds(boundedValue, amountPerPixel, modifierFactor);
     const steppedValue = snappedValue.snapped
@@ -343,7 +433,7 @@ const handlePointerDown = (event: PointerEvent) => {
     }
 
     mode = "pending-drag";
-    valid = true;
+    proposedValueAccepted = true;
     dragState = {
         pointerId: event.pointerId,
         start: {
@@ -493,21 +583,23 @@ const entryFn = $derived(entry ?? entryDefault);
     el,
     onElChange,
     elProps,
-    valid,
+    outsideHardBounds,
+    outsideSoftBounds,
+    belowSoftMax,
+    belowSoftMin,
     disabled,
     editing,
     dragging,
-    overflow,
-    underflow,
     progress,
 }: EntryProps)}
     <entry-slider
         class:disabled
         class:dragging
         class:editing
-        class:invalid={!valid}
-        class:overflow
-        class:underflow
+        class:outside-hard-bounds={outsideHardBounds}
+        class:outside-soft-bounds={outsideSoftBounds}
+        class:above-soft-max={belowSoftMax}
+        class:below-soft-min={belowSoftMin}
         style:--entry-slider-progress={progress}
     >
         <input
@@ -522,14 +614,19 @@ const entryFn = $derived(entry ?? entryDefault);
     text: displayText,
     value,
     progress,
-    valid,
+    valid: !invalid,
+    invalid,
+    outsideHardBounds,
+    outsideSoftBounds,
+    belowSoftMax,
+    belowSoftMin,
     focused,
     disabled,
     editing,
     dragging,
     pendingDrag,
-    overflow,
-    underflow,
+    overflow: belowSoftMax,
+    underflow: belowSoftMin,
     hasBounds,
     el,
     onElChange: (value: HTMLElement | null) => {
@@ -545,7 +642,7 @@ const entryFn = $derived(entry ?? entryDefault);
         role: "spinbutton",
         disabled,
         "aria-disabled": disabled,
-        "aria-invalid": !valid,
+        "aria-invalid": invalid,
         "aria-valuemax": hasBounds ? max : undefined,
         "aria-valuemin": hasBounds ? min : undefined,
         "aria-valuenow": value,
@@ -561,7 +658,7 @@ const entryFn = $derived(entry ?? entryDefault);
 
 <style lang="scss">
 entry-slider {
-    display: inline-grid;
+    display: inline grid;
     min-width: 6ch;
 
     > input {
@@ -575,13 +672,19 @@ entry-slider {
         cursor: text;
     }
 
-    &.invalid > input {
+    &.outside-hard-bounds > input {
         outline: 1px solid oklch(62.828% 0.20996 13.579);
-        outline-offset: 0.25rem;
+        outline-offset: 0.25em;
+
+        color: oklch(62.828% 0.20996 13.579);
     }
 
     &.disabled {
         pointer-events: none;
+
+        > input {
+            cursor: not-allowed;
+        }
     }
 }
 </style>
