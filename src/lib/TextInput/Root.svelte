@@ -39,7 +39,7 @@ export type InputProps = {
         onblur: () => void,
         onkeydown: (event: KeyboardEvent) => void,
         onclick: (event: Event) => void,
-        contenteditable: true,
+        contenteditable: "plaintext-only",
         tabindex: 0,
         role: "textbox",
         disabled: boolean,
@@ -163,7 +163,7 @@ const inputFn = $derived(input ?? inputDefault);
         bind:this={() => el, onElChange}
         bind:textContent={() => localText, onLocalTextChange}
         {...elProps}
-        contenteditable
+        contenteditable="plaintext-only"
     >
         <br /> <!-- needed for initial centering -->
     </text-entry>
@@ -201,7 +201,7 @@ const inputFn = $derived(input ?? inputDefault);
                 event.preventDefault();
                 event.stopPropagation();
             },
-            contenteditable: true,
+            contenteditable: "plaintext-only",
             tabindex: 0,
             role: "textbox",
             disabled,
@@ -241,7 +241,9 @@ text-entry-container {
 
     &.invalid {
         outline: 1px solid oklch(62.828% 0.20996 13.579);
-        outline-offset: 0.25rem;
+        outline-offset: 0.25em;
+
+        color: oklch(62.828% 0.20996 13.579);
     }
 
     &.disabled {
@@ -251,6 +253,8 @@ text-entry-container {
 
 text-entry {
     display: block;
+
+    white-space: pre-wrap;
 }
 
 text-entry-placeholder {

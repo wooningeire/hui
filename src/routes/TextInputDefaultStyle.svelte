@@ -42,7 +42,7 @@ let {
             bind:textContent={() => localText, onLocalTextChange}
             class="text-input-input"
             {...elProps}
-            contenteditable
+            contenteditable="plaintext-only"
             {id}
         >
             <br />
@@ -76,7 +76,10 @@ text-input-container {
     }
 
     &.invalid {
-        border-color: oklch(0.7 0.15 0.98turn);
+        outline: 1px solid oklch(62.828% 0.20996 13.579);
+        outline-offset: 0.25em;
+
+        color: oklch(62.828% 0.20996 13.579);
     }
 }
 
@@ -90,5 +93,9 @@ text-input-container {
 .text-input-placeholder {
     padding: 0.5rem;
     border-radius: 0.5rem;
+}
+
+.text-input-input {
+    white-space: pre-wrap;
 }
 </style>

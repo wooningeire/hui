@@ -96,7 +96,3 @@ let disabled = $state(false);
         {disabled}
     />
 </ComponentPage>
-
-
-<style lang="scss">
-</style>
