@@ -1,10 +1,9 @@
 <script lang="ts">
-import TextInput from "$lib/TextInput/index.js";
 import ComponentPage from "../../ComponentPage.svelte";
 import ComponentProp from "../../ComponentProp.svelte";
 import ComponentProps from "../../ComponentProps.svelte";
-    import KeyboardKey from "../../KeyboardKey.svelte";
-    import TextInputDefaultStyle from "../../TextInputDefaultStyle.svelte";
+import KeyboardKey from "../../KeyboardKey.svelte";
+import TextInputDefaultStyle from "../../TextInputDefaultStyle.svelte";
 
 let value = $state("");
 let placeholderText = $state("Placeholder text");
@@ -26,11 +25,11 @@ let disabled = $state(false);
                 name="value"
                 type="string"
             >
-            
                 {#snippet editor({id})}
                     <TextInputDefaultStyle
                         bind:value
                         placeholderText="value"
+                        {multiline}
                         {id}
                     />
                 {/snippet}

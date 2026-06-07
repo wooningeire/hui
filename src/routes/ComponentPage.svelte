@@ -19,14 +19,13 @@ let {
 
     {@render overview()}
 
-    <h2>Props</h2>
-    {@render propsSummary()}
-
-
     <h2>Preview</h2>
     <div class="component-container">
         {@render children()}
     </div>
+
+    <h2>Props</h2>
+    {@render propsSummary()}
 </component-page>
 
 <style lang="scss">
