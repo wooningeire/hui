@@ -14,10 +14,84 @@ let exponential = $state(true);
 let hasBounds = $state(true);
 let disabled = $state(false);
 
+type EntrySliderEditorProps = {
+    id: string,
+    value: number,
+    onValueChange: (value: number) => void,
+    step: number,
+};
+
 const clampProgress = (value: number) => {
     return Math.max(0, Math.min(1, value));
 };
+
+const setValue = (newValue: number) => {
+    value = newValue;
+};
+
+const setMin = (newValue: number) => {
+    min = newValue;
+};
+
+const setMax = (newValue: number) => {
+    max = newValue;
+};
+
+const setSoftMin = (newValue: number) => {
+    softMin = newValue;
+};
+
+const setSoftMax = (newValue: number) => {
+    softMax = newValue;
+};
+
+const setStep = (newValue: number) => {
+    step = newValue;
+};
 </script>
+
+{#snippet entrySliderEditor({
+    id,
+    value,
+    onValueChange,
+    step,
+}: EntrySliderEditorProps)}
+    <EntrySlider
+        {value}
+        {onValueChange}
+        {step}
+        hasBounds={false}
+    >
+        {#snippet entry({
+            text,
+            el,
+            onElChange,
+            elProps,
+            outsideHardBounds,
+            outsideSoftBounds,
+            belowSoftMax,
+            belowSoftMin,
+            editing,
+            dragging,
+            progress,
+        })}
+            <input
+                {id}
+                bind:this={() => el, onElChange}
+                class="entry-slider"
+                class:dragging
+                class:editing
+                class:outside-hard-bounds={outsideHardBounds}
+                class:outside-soft-bounds={outsideSoftBounds}
+                class:above-soft-max={belowSoftMax}
+                class:below-soft-min={belowSoftMin}
+                style:--slider-progress={clampProgress(progress)}
+                {...elProps}
+                value={text}
+            />
+        {/snippet}
+    </EntrySlider>
+{/snippet}
 
 <ComponentPage
     title="EntrySlider"
@@ -33,12 +107,12 @@ const clampProgress = (value: number) => {
                 type="number"
             >
                 {#snippet editor({id})}
-                    <input
-                        {id}
-                        type="number"
-                        step={0.01}
-                        bind:value
-                    />
+                    {@render entrySliderEditor({
+                        id,
+                        value,
+                        onValueChange: setValue,
+                        step: 0.01,
+                    })}
                 {/snippet}
 
                 {#snippet desc()}
@@ -51,12 +125,12 @@ const clampProgress = (value: number) => {
                 type="number"
             >
                 {#snippet editor({id})}
-                    <input
-                        {id}
-                        type="number"
-                        step={0.01}
-                        bind:value={min}
-                    />
+                    {@render entrySliderEditor({
+                        id,
+                        value: min,
+                        onValueChange: setMin,
+                        step: 0.01,
+                    })}
                 {/snippet}
 
                 {#snippet desc()}
@@ -69,12 +143,12 @@ const clampProgress = (value: number) => {
                 type="number"
             >
                 {#snippet editor({id})}
-                    <input
-                        {id}
-                        type="number"
-                        step={0.01}
-                        bind:value={max}
-                    />
+                    {@render entrySliderEditor({
+                        id,
+                        value: max,
+                        onValueChange: setMax,
+                        step: 0.01,
+                    })}
                 {/snippet}
 
                 {#snippet desc()}
@@ -87,12 +161,12 @@ const clampProgress = (value: number) => {
                 type="number"
             >
                 {#snippet editor({id})}
-                    <input
-                        {id}
-                        type="number"
-                        step={0.01}
-                        bind:value={softMin}
-                    />
+                    {@render entrySliderEditor({
+                        id,
+                        value: softMin,
+                        onValueChange: setSoftMin,
+                        step: 0.01,
+                    })}
                 {/snippet}
 
                 {#snippet desc()}
@@ -105,12 +179,12 @@ const clampProgress = (value: number) => {
                 type="number"
             >
                 {#snippet editor({id})}
-                    <input
-                        {id}
-                        type="number"
-                        step={0.01}
-                        bind:value={softMax}
-                    />
+                    {@render entrySliderEditor({
+                        id,
+                        value: softMax,
+                        onValueChange: setSoftMax,
+                        step: 0.01,
+                    })}
                 {/snippet}
 
                 {#snippet desc()}
@@ -123,12 +197,12 @@ const clampProgress = (value: number) => {
                 type="number"
             >
                 {#snippet editor({id})}
-                    <input
-                        {id}
-                        type="number"
-                        step={0.001}
-                        bind:value={step}
-                    />
+                    {@render entrySliderEditor({
+                        id,
+                        value: step,
+                        onValueChange: setStep,
+                        step: 0.001,
+                    })}
                 {/snippet}
 
                 {#snippet desc()}
