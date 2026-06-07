@@ -307,7 +307,6 @@ const setStep = (newValue: number) => {
 
 <style lang="scss">
 .entry-slider {
-    width: 16ch;
     padding: 0.375rem 0.5rem;
 
     border: 0.0625rem solid oklch(0 0 0 / 0.25);

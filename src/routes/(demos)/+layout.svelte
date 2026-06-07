@@ -8,8 +8,4 @@ let {
 } = $props();
 </script>
 
-<div>
-    <a href="/">back</a>
-</div>
-
 {@render children()}
