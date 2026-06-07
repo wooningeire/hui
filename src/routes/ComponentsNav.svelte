@@ -10,7 +10,9 @@ import Separator from "./Separator.svelte";
 
     <Separator />
 
+    <a href="/Draggable">Draggable</a>
     <a href="/EntrySlider">EntrySlider</a>
+    <a href="/Hotkey">Hotkey</a>
     <a href="/TextInput">TextInput</a>
 </nav>
 
@@ -22,5 +24,7 @@ nav {
     flex-direction: column;
     align-items: stretch;
     gap: 1em;
+
+    padding: 2em;
 }
 </style>

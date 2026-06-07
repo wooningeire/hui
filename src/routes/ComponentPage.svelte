@@ -26,13 +26,17 @@ let {
 
     <h2>Props</h2>
     {@render propsSummary()}
+
+    <h2>Snippets</h2>
+    TBD
 </component-page>
 
 <style lang="scss">
 component-page {
     display: flex;
     flex-direction: column;
+    gap: 1em;
 
-    gap: 1rem;
+    padding: 0 1em;
 }
 </style>

@@ -25,6 +25,17 @@ main {
     
     width: 100vw;
     height: 100vh;
-    padding: 2em 4em;
+
+    overflow: hidden;
+
+    :global(> *) {
+        overflow-y: auto;
+    }
+}
+
+page-content {
+    flex-grow: 1;
+
+    padding: 2em;
 }
 </style>
