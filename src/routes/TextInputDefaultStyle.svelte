@@ -97,5 +97,9 @@ text-input-container {
 
 .text-input-input {
     white-space: pre-wrap;
+
+    &[data-trailing-newline="true"]::after {
+        content: "\200b";
+    }
 }
 </style>

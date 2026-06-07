@@ -37,12 +37,14 @@ export type InputProps = {
     elProps: {
         onfocus: () => void,
         onblur: () => void,
+        onbeforeinput: (event: InputEvent) => void,
         onkeydown: (event: KeyboardEvent) => void,
         onclick: (event: Event) => void,
         contenteditable: "plaintext-only",
         tabindex: 0,
         role: "textbox",
         disabled: boolean,
+        "data-trailing-newline"?: "true",
     },
 };
 
@@ -106,8 +108,82 @@ const handleKeydownGeneric = (event: KeyboardEvent) => {
     if (disabled) event.preventDefault();
 };
 
+const handleBeforeInput = (event: InputEvent) => {
+    if (disabled) {
+        event.preventDefault();
+        return;
+    }
+
+    if (!multiline) return;
+    if (event.isComposing) return;
+    if (event.inputType !== "insertText") return;
+    if (event.data === null) return;
+
+    event.preventDefault();
+    insertTextAtSelection(event.data);
+};
+
+const selectionInInput = (selection: Selection) => {
+    const anchorNode = selection.anchorNode;
+    const focusNode = selection.focusNode;
+
+    return (
+        anchorNode !== null
+        && focusNode !== null
+        && el.contains(anchorNode)
+        && el.contains(focusNode)
+    );
+};
+
+const removePlaceholderBreaks = () => {
+    if (el.textContent?.length === 0) return;
+
+    for (const child of [...el.childNodes]) {
+        if (child.nodeName === "BR") child.remove();
+    }
+};
+
+const insertTextAtSelection = (text: string) => {
+    const selection = el.ownerDocument.getSelection();
+
+    if (selection === null) return;
+    if (selection.rangeCount === 0) return;
+    if (!selectionInInput(selection)) return;
+
+    const range = selection.getRangeAt(0);
+    const textNode = el.ownerDocument.createTextNode(text);
+
+    range.deleteContents();
+    range.insertNode(textNode);
+    range.setStartAfter(textNode);
+    range.setEndAfter(textNode);
+    removePlaceholderBreaks();
+
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    el.dispatchEvent(new InputEvent("input", {
+        bubbles: true,
+        data: text,
+        inputType: "insertText",
+    }));
+};
+
+const handleKeydownMultiline = (event: KeyboardEvent) => {
+    handleKeydownGeneric(event);
+
+    if (event.defaultPrevented) return;
+    if (event.key !== "Enter") return;
+
+    // Chromium adds a caret placeholder newline for its default plaintext-only Enter behavior.
+    event.preventDefault();
+    insertTextAtSelection("\n");
+};
+
 const handleKeydownSingleLine = (event: KeyboardEvent) => {
     handleKeydownGeneric(event);
+
+    if (event.defaultPrevented) return;
 
     if (event.key === "Enter") {
         event.preventDefault();
@@ -195,7 +271,8 @@ const inputFn = $derived(input ?? inputDefault);
         elProps: {
             onfocus: handleFocus,
             onblur: handleBlur,
-            onkeydown: multiline ? handleKeydownGeneric : handleKeydownSingleLine,
+            onbeforeinput: handleBeforeInput,
+            onkeydown: multiline ? handleKeydownMultiline : handleKeydownSingleLine,
             onclick: (event: Event) => {
                 if (!focused) return;
                 event.preventDefault();
@@ -205,6 +282,7 @@ const inputFn = $derived(input ?? inputDefault);
             tabindex: 0,
             role: "textbox",
             disabled,
+            "data-trailing-newline": localValue.endsWith("\n") ? "true" : undefined,
         },
     })}
 {/snippet}
@@ -255,6 +333,10 @@ text-entry {
     display: block;
 
     white-space: pre-wrap;
+
+    &[data-trailing-newline="true"]::after {
+        content: "\200b";
+    }
 }
 
 text-entry-placeholder {
