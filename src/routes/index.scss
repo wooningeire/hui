@@ -4,10 +4,11 @@
 
 body {
     font-family: "Averia Libre", "Atkinson Hyperlegible Next", sans-serif;
+    font-size: 0.75rem;
     margin: 0;
 
-    background: oklch(0.995 0.01 150);
-    color: oklch(0.3 0.1 180);
+    background: oklch(0.2 0.01 300);
+    color: oklch(0.995 0.01 180);
 }
 
 code,
@@ -26,20 +27,20 @@ h6 {
 
     font-family: "Belanosima", "Averia Libre", "Atkinson Hyperlegible Next", sans-serif;
     font-weight: 600;
-    color: oklch(0.5 0.05 160);
+    color: oklch(0.7 0.08 180);
 }
 
 
 h1 {
-    font-size: 2rem;
+    font-size: 1.5rem;
 }
 
 code,
 pre {
     padding: 0.0625em 0.5em;
 
-    background: oklch(0.95 0.05 130 / 0.5);
-    border: 1px solid oklch(0.8 0.03 130 / 0.5);
+    background: oklch(0.5 0.1 330 / 0.5);
+    border: 1px solid oklch(0.8 0.1 310 / 0.5);
     border-radius: 0.75em;
 }
 
@@ -60,4 +61,17 @@ button {
     border: none;
 
     color: currentcolor;
+}
+
+a[href] {
+    color: oklch(0.8 0.15 350);
+
+    &:hover,
+    &:focus-within {
+        color: oklch(0.95 0.05 350);
+    }
+
+    &:active {
+        color: oklch(0.8 0.15 350 / 0.1);
+    }
 }

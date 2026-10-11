@@ -313,17 +313,16 @@ const setStep = (newValue: number) => {
     border-radius: 0.25rem;
 
     box-shadow: 0 0.0625rem 0.125rem oklch(0 0 0 / 0.1);
-
     
     text-align: right;
 
     background:
         linear-gradient(
             90deg,
-            oklch(0.82 0.11 170 / 0.45) calc(var(--slider-progress) * 100%),
+            oklch(0.85 0.25 350 / 0.45) calc(var(--slider-progress) * 100%),
             oklch(0 0 0 / 0) 0
         ),
-        white;
+        oklch(0.3 0.05 330);
 
     cursor: ew-resize;
 
@@ -335,25 +334,27 @@ const setStep = (newValue: number) => {
         outline: 1px solid oklch(62.828% 0.20996 13.579);
         outline-offset: 0.25em;
 
-        color: oklch(62.828% 0.20996 13.579);
+        color: oklch(72.828% 0.20996 13.579);
     }
 
     &.below-soft-min {
         background:
             linear-gradient(
                 90deg,
-                oklch(0.9 0.15 150 / 0.7),
-                oklch(0 0 0 / 0) 25%
+                oklch(0.9 0.25 10 / 0.7),
+                oklch(0.3 0.05 330) 25%
             ),
+            oklch(0.3 0.05 330);
     }
 
     &.above-soft-max {
         background:
             linear-gradient(
                 90deg,
-                oklch(0.82 0.11 170 / 0.45) 75%,
-                oklch(0.95 0.15 150 / 0.7)
+                oklch(0.85 0.25 350 / 0.45) 75%,
+                oklch(0.9 0.25 10 / 0.7)
             ),
+            oklch(0.3 0.05 330);
     }
 
 }

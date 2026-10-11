@@ -10,6 +10,7 @@ import Separator from "./Separator.svelte";
 
     <Separator />
 
+    <a href="/Button">Button</a>
     <a href="/Draggable">Draggable</a>
     <a href="/EntrySlider">EntrySlider</a>
     <a href="/Hotkey">Hotkey</a>

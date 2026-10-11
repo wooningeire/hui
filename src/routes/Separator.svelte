@@ -4,6 +4,6 @@
 separator-bar {
     flex-basis: 1px;
 
-    background: oklch(0.5 0.1 180);
+    background: oklch(0.5 0.1 350);
 }
 </style>

@@ -1,3 +1,4 @@
+export { default as Button } from "./Button/index.js";
 export { default as Draggable } from "./Draggable/index.js";
 export { default as EntrySlider } from "./EntrySlider/index.js";
 export { default as Hotkey } from "./Hotkey/index.js";

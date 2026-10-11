@@ -55,7 +55,7 @@ text-input-container {
     display: grid;
     place-items: stretch;
 
-    border: 0.0625rem solid oklch(0 0 0 / 0);
+    border: 0.0625rem solid oklch(1 0 0 / 0);
 
     &,
     > * {
@@ -63,8 +63,8 @@ text-input-container {
     }
 
     &:not(.disabled) {
-        box-shadow: 0 0.0625rem 0.125rem oklch(0 0 0 / 0.1);
-        border-color: oklch(0 0 0 / 0.25);
+        box-shadow: 0 0.0625rem 0.125rem oklch(1 0 0 / 0.1);
+        border-color: oklch(1 0 0 / 0.25);
     }
 
     &.disabled {

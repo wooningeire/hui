@@ -24,9 +24,9 @@ component-props {
     width: 100ch;
     padding: 1rem;
 
-    border: 1px solid oklch(0.8 0.05 130);
+    border: 1px solid oklch(0.8 0.05 350);
     border-radius: 1.5em;
 
-    box-shadow: 0 0 16px -8px oklch(0.4 0.08 180);
+    box-shadow: 0 0 16px -8px oklch(0.8 0.08 270);
 }
 </style>
